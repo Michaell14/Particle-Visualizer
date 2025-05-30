@@ -223,7 +223,7 @@ const AudioVisualizer: React.FC = () => {
         }
     };
 
-    const drawLine = (ctx: CanvasRenderingContext2D, p1: Particle, p2: Particle, distance: number, opacity: number) => {
+    const drawLine = (ctx: CanvasRenderingContext2D, p1: Particle, p2: Particle, opacity: number) => {
         // Only set line style if it's different from the current one
         if (effects.lineStyle === 'dashed') {
             ctx.setLineDash([5, 5]);
