@@ -90,7 +90,7 @@ const AudioVisualizer: React.FC = () => {
                 if (distance < effects.connectionDistance) {
                     // Calculate opacity based on distance (fade out as distance increases)
                     const opacity = 0.2 * (1 - (distance / effects.connectionDistance));
-                    drawLine(ctx, p, p2, distance, opacity);
+                    drawLine(ctx, p, p2, opacity);
                 }
             }
         }
