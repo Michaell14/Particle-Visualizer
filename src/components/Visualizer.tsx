@@ -19,6 +19,7 @@ const AudioVisualizer: React.FC = () => {
     const [particleCount, setParticleCount] = useState(100);
     const [lineWidth, setLineWidth] = useState(2);
     const [particleColor, setParticleColor] = useState('#ffffff');
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [effects, setEffects] = useState({
         colorMode: 'solid', // 'solid', 'rainbow'
         particleShape: 'circle', // 'circle', 'square', 'triangle'
@@ -292,15 +293,74 @@ const AudioVisualizer: React.FC = () => {
                     background: 'black'
                 }}
             />
-            <div className="controls-panel">
-                <div className="controls-header">
-                    <h3>Particle Visualizer Controls</h3>
+            <button 
+                onClick={() => setIsPanelOpen(!isPanelOpen)}
+                style={{
+                    position: 'fixed',
+                    top: '1rem',
+                    right: '1rem',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '8px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    padding: '0.75rem',
+                    zIndex: 3,
+                    fontSize: '1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '3rem',
+                    height: '3rem',
+                    backdropFilter: 'blur(5px)',
+                    WebkitBackdropFilter: 'blur(5px)'
+                }}
+                className="menu-button"
+            >
+                ☰
+            </button>
+            <div className={`controls-panel ${isPanelOpen ? 'open' : ''}`} style={{
+                position: 'fixed',
+                top: 0,
+                right: 0,
+                width: '300px',
+                maxWidth: '90vw',
+                maxHeight: '100vh',
+                overflowY: 'auto',
+                background: 'rgba(0, 0, 0, 0.8)',
+                color: 'white',
+                padding: '1rem',
+                zIndex: 2,
+                boxSizing: 'border-box',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
+                transform: 'translateX(0)',
+                transition: 'transform 0.3s ease-in-out'
+            }}>
+                <div className="controls-header" style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '1rem',
+                    paddingBottom: '0.5rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                    <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Particle Visualizer Controls</h3>
                 </div>
-                <div className="controls">
-                    <div className="control-group">
-                        <h4>Basic Controls</h4>
-                        <div>
-                            <label>
+                <div className="controls" style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                }}>
+                    <div className="control-group" style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        padding: '1rem',
+                        borderRadius: '8px'
+                    }}>
+                        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Basic Controls</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Particle Count:
                                 <input
                                     type="range"
@@ -308,11 +368,10 @@ const AudioVisualizer: React.FC = () => {
                                     max="200"
                                     value={particleCount}
                                     onChange={(e) => setParticleCount(Number(e.target.value))}
+                                    style={{ width: '100%' }}
                                 />
                             </label>
-                        </div>
-                        <div>
-                            <label>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Line Width:
                                 <input
                                     type="range"
@@ -320,11 +379,10 @@ const AudioVisualizer: React.FC = () => {
                                     max="10"
                                     value={lineWidth}
                                     onChange={(e) => setLineWidth(Number(e.target.value))}
+                                    style={{ width: '100%' }}
                                 />
                             </label>
-                        </div>
-                        <div>
-                            <label>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Particle Color:
                                 <input
                                     type="color"
@@ -333,15 +391,20 @@ const AudioVisualizer: React.FC = () => {
                                         setParticleColor(e.target.value);
                                         setEffects(prev => ({ ...prev, colorMode: 'solid' }));
                                     }}
+                                    style={{ width: '100%', height: '40px' }}
                                 />
                             </label>
                         </div>
                     </div>
 
-                    <div className="control-group">
-                        <h4>Visual Effects</h4>
-                        <div>
-                            <label>
+                    <div className="control-group" style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        padding: '1rem',
+                        borderRadius: '8px'
+                    }}>
+                        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Visual Effects</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Color Mode:
                                 <select
                                     value={effects.colorMode}
@@ -349,10 +412,8 @@ const AudioVisualizer: React.FC = () => {
                                         const newMode = e.target.value;
                                         setEffects(prev => ({ ...prev, colorMode: newMode }));
                                         
-                                        // Update particle colors when switching to solid mode
                                         if (newMode === 'solid') {
                                             particlesRef.current.forEach(particle => {
-                                                // Convert hex to HSL for consistent color handling
                                                 const r = parseInt(particleColor.slice(1, 3), 16) / 255;
                                                 const g = parseInt(particleColor.slice(3, 5), 16) / 255;
                                                 const b = parseInt(particleColor.slice(5, 7), 16) / 255;
@@ -382,34 +443,48 @@ const AudioVisualizer: React.FC = () => {
                                             });
                                         }
                                     }}
-                                    style={{ backgroundColor: '#333', color: 'white' }}
+                                    style={{ 
+                                        backgroundColor: '#333', 
+                                        color: 'white',
+                                        padding: '0.5rem',
+                                        borderRadius: '4px',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                                    }}
                                 >
                                     <option value="solid">Solid</option>
                                     <option value="rainbow">Rainbow</option>
                                 </select>
                             </label>
-                        </div>
-                        <div>
-                            <label>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Particle Shape:
                                 <select
                                     value={effects.particleShape}
                                     onChange={(e) => setEffects(prev => ({ ...prev, particleShape: e.target.value }))}
-                                    style={{ backgroundColor: '#333', color: 'white' }}
+                                    style={{ 
+                                        backgroundColor: '#333', 
+                                        color: 'white',
+                                        padding: '0.5rem',
+                                        borderRadius: '4px',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                                    }}
                                 >
                                     <option value="circle">Circle</option>
                                     <option value="square">Square</option>
                                     <option value="triangle">Triangle</option>
                                 </select>
                             </label>
-                        </div>
-                        <div>
-                            <label>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Line Style:
                                 <select
                                     value={effects.lineStyle}
                                     onChange={(e) => setEffects(prev => ({ ...prev, lineStyle: e.target.value }))}
-                                    style={{ backgroundColor: '#333', color: 'white' }}
+                                    style={{ 
+                                        backgroundColor: '#333', 
+                                        color: 'white',
+                                        padding: '0.5rem',
+                                        borderRadius: '4px',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                                    }}
                                 >
                                     <option value="solid">Solid</option>
                                     <option value="dashed">Dashed</option>
@@ -419,10 +494,14 @@ const AudioVisualizer: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="control-group">
-                        <h4>Advanced Effects</h4>
-                        <div>
-                            <label>
+                    <div className="control-group" style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        padding: '1rem',
+                        borderRadius: '8px'
+                    }}>
+                        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Advanced Effects</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Trail Length:
                                 <input
                                     type="range"
@@ -431,11 +510,10 @@ const AudioVisualizer: React.FC = () => {
                                     step="0.1"
                                     value={effects.trailLength}
                                     onChange={(e) => setEffects(prev => ({ ...prev, trailLength: Number(e.target.value) }))}
+                                    style={{ width: '100%' }}
                                 />
                             </label>
-                        </div>
-                        <div>
-                            <label>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Particle Size:
                                 <input
                                     type="range"
@@ -443,11 +521,10 @@ const AudioVisualizer: React.FC = () => {
                                     max="10"
                                     value={effects.particleSize}
                                     onChange={(e) => setEffects(prev => ({ ...prev, particleSize: Number(e.target.value) }))}
+                                    style={{ width: '100%' }}
                                 />
                             </label>
-                        </div>
-                        <div>
-                            <label>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Connection Distance:
                                 <input
                                     type="range"
@@ -455,15 +532,20 @@ const AudioVisualizer: React.FC = () => {
                                     max="320"
                                     value={effects.connectionDistance}
                                     onChange={(e) => setEffects(prev => ({ ...prev, connectionDistance: Number(e.target.value) }))}
+                                    style={{ width: '100%' }}
                                 />
                             </label>
                         </div>
                     </div>
 
-                    <div className="control-group">
-                        <h4>Effects</h4>
-                        <div>
-                            <label>
+                    <div className="control-group" style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        padding: '1rem',
+                        borderRadius: '8px'
+                    }}>
+                        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Effects</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <input
                                     type="checkbox"
                                     checked={effects.glowEffect}
@@ -471,10 +553,8 @@ const AudioVisualizer: React.FC = () => {
                                 />
                                 Glow Effect
                             </label>
-                        </div>
-                        {effects.glowEffect && (
-                            <div>
-                                <label>
+                            {effects.glowEffect && (
+                                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                     Glow Intensity:
                                     <input
                                         type="range"
@@ -483,16 +563,21 @@ const AudioVisualizer: React.FC = () => {
                                         step="0.1"
                                         value={effects.glowIntensity}
                                         onChange={(e) => setEffects(prev => ({ ...prev, glowIntensity: Number(e.target.value) }))}
+                                        style={{ width: '100%' }}
                                     />
                                 </label>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
-                    <div className="control-group">
-                        <h4>Mouse Interaction</h4>
-                        <div>
-                            <label>
+                    <div className="control-group" style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        padding: '1rem',
+                        borderRadius: '8px'
+                    }}>
+                        <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem' }}>Mouse Interaction</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Mouse Repulsion Distance:
                                 <input
                                     type="range"
@@ -500,11 +585,10 @@ const AudioVisualizer: React.FC = () => {
                                     max="200"
                                     value={effects.mouseRepulsion}
                                     onChange={(e) => setEffects(prev => ({ ...prev, mouseRepulsion: Number(e.target.value) }))}
+                                    style={{ width: '100%' }}
                                 />
                             </label>
-                        </div>
-                        <div>
-                            <label>
+                            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                                 Mouse Force Strength:
                                 <input
                                     type="range"
@@ -513,12 +597,38 @@ const AudioVisualizer: React.FC = () => {
                                     step="0.1"
                                     value={effects.mouseForce}
                                     onChange={(e) => setEffects(prev => ({ ...prev, mouseForce: Number(e.target.value) }))}
+                                    style={{ width: '100%' }}
                                 />
                             </label>
                         </div>
                     </div>
                 </div>
             </div>
+            <style>
+                {`
+                    @media (max-width: 768px) {
+                        .controls-panel {
+                            transform: translateX(100%) !important;
+                            width: 100% !important;
+                            max-width: 100% !important;
+                        }
+                        .controls-panel.open {
+                            transform: translateX(0) !important;
+                        }
+                        .menu-button {
+                            display: flex !important;
+                        }
+                    }
+                    @media (min-width: 769px) {
+                        .menu-button {
+                            display: none !important;
+                        }
+                        .controls-panel {
+                            transform: translateX(0) !important;
+                        }
+                    }
+                `}
+            </style>
         </div>
     );
 };
