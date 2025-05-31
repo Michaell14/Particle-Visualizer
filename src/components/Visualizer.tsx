@@ -15,6 +15,7 @@ const AudioVisualizer: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animationFrameRef = useRef<number>(0);
     const particlesRef = useRef<Particle[]>([]);
+    const mousePositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
     const [particleCount, setParticleCount] = useState(100);
     const [lineWidth, setLineWidth] = useState(2);
     const [particleColor, setParticleColor] = useState('#ffffff');
@@ -27,6 +28,8 @@ const AudioVisualizer: React.FC = () => {
         connectionDistance: 200, // 50-500
         glowEffect: false,
         glowIntensity: 0.5, // 0-1
+        mouseRepulsion: 80, // Distance at which mouse affects particles
+        mouseForce: 3, // Strength of mouse repulsion
     });
 
     const draw = () => {
@@ -44,6 +47,18 @@ const AudioVisualizer: React.FC = () => {
         // Update and draw particles
         for (let i = 0; i < particles.length; i++) {
             const p = particles[i];
+            
+            // Apply mouse repulsion force
+            const dx = p.x - mousePositionRef.current.x;
+            const dy = p.y - mousePositionRef.current.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < effects.mouseRepulsion) {
+                const force = (effects.mouseRepulsion - distance) / effects.mouseRepulsion;
+                const angle = Math.atan2(dy, dx);
+                p.vx += Math.cos(angle) * force * effects.mouseForce;
+                p.vy += Math.sin(angle) * force * effects.mouseForce;
+            }
             
             // Maintain constant base movement
             const baseSpeed = 1;
@@ -111,6 +126,17 @@ const AudioVisualizer: React.FC = () => {
         // Initialize particles
         particlesRef.current = Array.from({ length: particleCount }, createParticle);
         
+        // Add mouse event listeners
+        const handleMouseMove = (e: MouseEvent) => {
+            const rect = canvas.getBoundingClientRect();
+            mousePositionRef.current = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+        };
+
+        canvas.addEventListener('mousemove', handleMouseMove);
+        
         // Start animation
         animationFrameRef.current = requestAnimationFrame(draw);
 
@@ -119,8 +145,9 @@ const AudioVisualizer: React.FC = () => {
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
             }
+            canvas.removeEventListener('mousemove', handleMouseMove);
         };
-    }, [particleCount, effects.connectionDistance, effects.lineStyle, effects.trailLength, effects.particleShape, effects.glowEffect, effects.glowIntensity, lineWidth]);
+    }, [particleCount, effects.connectionDistance, effects.lineStyle, effects.trailLength, effects.particleShape, effects.glowEffect, effects.glowIntensity, lineWidth, effects.mouseRepulsion, effects.mouseForce]);
 
     // Update particles when effects change
     useEffect(() => {
@@ -460,6 +487,35 @@ const AudioVisualizer: React.FC = () => {
                                 </label>
                             </div>
                         )}
+                    </div>
+
+                    <div className="control-group">
+                        <h4>Mouse Interaction</h4>
+                        <div>
+                            <label>
+                                Mouse Repulsion Distance:
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="200"
+                                    value={effects.mouseRepulsion}
+                                    onChange={(e) => setEffects(prev => ({ ...prev, mouseRepulsion: Number(e.target.value) }))}
+                                />
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Mouse Force Strength:
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="10"
+                                    step="0.1"
+                                    value={effects.mouseForce}
+                                    onChange={(e) => setEffects(prev => ({ ...prev, mouseForce: Number(e.target.value) }))}
+                                />
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
