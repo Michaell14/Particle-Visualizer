@@ -1,2 +1,2 @@
 ## 2D Particle Visualizer
-[2d-visualizer.vercel.app](2d-visualizer.vercel.app).
+[Particle Visualizer](https://2d-visualizer.vercel.app/)
